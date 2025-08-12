@@ -1,4 +1,3 @@
-Here you go — the complete README.md content in one block for easy copying:
 
 ````markdown
 # Multi-Service Docker Project
