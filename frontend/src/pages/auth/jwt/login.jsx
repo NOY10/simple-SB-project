@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import useAuth from '../../../hooks/useAuth';
 
 export default function Login() {
-  const { login, loading } = useAuth();
-
+  const { login } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);  
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -16,20 +16,36 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setSuccess('');
-    
+    setLoading(true);
+
     const { email, password } = form;
 
     if (!email || !password) {
       setError('Please enter both email and password');
+      setLoading(false);
       return;
     }
 
-    const result = await login(email, password);
+    try {
+      const result = await login(email, password);
 
-    if (result.success) {
+      if (!result) {
+        setError('Login failed. Please check your credentials.');
+        setLoading(false);
+        return;
+      }   
       setSuccess('Login successful! Redirecting...');
-    } else {
-      setError(result.message || 'Login failed');
+
+    } catch (error) {
+      console.error('Login error:', error);
+
+      if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('Incorrect username or password. Please try again.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,7 +63,7 @@ export default function Login() {
           name="email"
           value={form.email}
           onChange={handleChange}
-          placeholder="Email"
+          placeholder="Username"
           className="w-full p-2 mb-4 border border-gray-300 rounded"
           required
         />
@@ -69,6 +85,13 @@ export default function Login() {
         >
           {loading ? 'Logging in...' : 'Login'}
         </button>
+
+        <p className="mt-4 text-center text-sm text-gray-600">
+          Don't have an account?{' '}
+          <a href="/register" className="text-blue-600 hover:underline">
+            Register
+          </a>
+        </p>
       </form>
     </div>
   );

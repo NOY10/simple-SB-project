@@ -11,7 +11,7 @@ import axiosService from 'utils/axios';
 import { setAuthStore } from './auth-reducer/store';
 
 // auth service imports
-import { login as authLogin, logout as authLogout, refreshToken as authRefreshToken } from 'api/auth';
+import { login as authLogin, logout as authLogout, refreshToken as authRefreshToken, register as authRegister } from 'api/auth';
 import { getFromStorage, removeFromStorage } from '../utils/secureLocalStorage';
 
 const chance = new Chance();
@@ -70,33 +70,7 @@ export const JWTProvider = ({ children }) => {
 
   const logout = () => authLogout();
 
-  const register = async (email, password, firstName, lastName) => {
-    // todo: this flow need to be recode as it not verified
-    const id = chance.bb_pin();
-    const response = await axiosService.post('/api/account/register', {
-      id,
-      email,
-      password,
-      firstName,
-      lastName
-    });
-    let users = response.data;
-
-    if (window.localStorage.getItem('token') !== undefined && window.localStorage.getItem('token') !== null) {
-      const localUsers = window.localStorage.getItem('token');
-      users = [
-        ...JSON.parse(localUsers),
-        {
-          id,
-          email,
-          password,
-          name: `${firstName} ${lastName}`
-        }
-      ];
-    }
-
-    window.localStorage.setItem('token', JSON.stringify(token));
-  };
+  const register = async (email, password, firstName, lastName, username) => authRegister(email, password, firstName, lastName, username);
 
   const resetPassword = async (email) => {
     console.log('email - ', email);

@@ -110,3 +110,25 @@ export const logout = async (reason) => {
   removeFromStorage('token');
   removeFromStorage('user');
 };
+
+export const register = async (email, password, firstName, lastName, username) => {
+  try {
+    const response = await axios.post(`${servicePrefix}/register`, {
+      email,
+      password,
+      firstName,
+      lastName,
+      username,
+      roles:["USER", "ADMIN"]
+    }, config);
+
+    if (response?.status === 201) {
+      return response.data;
+    }
+
+    throw new Error(response?.data?.message || 'Registration failed. Something went wrong.');
+  } catch (error) {
+    const message = error?.response?.data?.message || 'Registration failed. Something went wrong.';
+    throw new Error(message);
+  }
+}
